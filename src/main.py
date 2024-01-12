@@ -7,18 +7,23 @@ import asyncio
 app = FastAPI()
 
 @app.get("/")
-async def root():
+async def message():
     db = Database()
     
     async with db.session() as session:
-        stmt = select(DatabaseMessage).where(DatabaseMessage.message == 'Hello world!')
+        stmt = select(DatabaseMessage) \
+            .where(DatabaseMessage.message == 'Hello world!')
         
         result = await session.execute(stmt)
-        return result  
+        
+    await db.close()
+    
+    return result
+    
 
 # Route parameters
-@app.get('/messages')
-async def item():
+@app.post('/messages')
+async def messages():
     db = Database()
     
     messages = []
@@ -27,10 +32,13 @@ async def item():
         messages.append(DatabaseMessage(phone_number="Number", message="Hello world!"))
     
     async with db.session() as session:
-        print(type(session))
 
         for message in messages:
             session.add(message)
         
         await session.commit()
+        
+    await db.close()
+    
+    return {} 
         

@@ -16,6 +16,9 @@ class Database:
             future=True
         )
         
+    async def close(self):
+        await self._engine.close()
+        
     async def create_database(self):
         async with self._engine.begin() as conn: 
             await conn.run_sync(Base.metadata.create_all)
